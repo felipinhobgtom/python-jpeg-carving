@@ -1,5 +1,6 @@
 import argparse
 import logging
+import platform
 from datetime import datetime
 from pathlib import Path
 
@@ -7,6 +8,8 @@ from pathlib import Path
 buf_size = 512
 start_magic_byte = b"\xff\xd8\xff\xe0"  # inicio da assinatura JPEG
 end_magic_byte = b"\xff\xd9"  # fim da assinatura JPEG
+# verificacao de sistema operacional
+is_windows = platform.system() == "Windows"
 
 
 def read_bytes(device: str, output: Path):
@@ -16,7 +19,10 @@ def read_bytes(device: str, output: Path):
     # criando e garantindo que o diretorio eh valido
     output.mkdir(parents=True, exist_ok=True)
 
-    file_disk = open(device, 'rb')
+    if is_windows:
+        file_disk = open(rf"\\.\{device}", "rb")     # raw f-string evita o warning
+    else:
+        file_disk = open(device, "rb")
 
     # o arg passado aqui eh o tamanho do buffer
     byte = file_disk.read(buf_size)
